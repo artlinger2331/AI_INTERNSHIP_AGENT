@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternAI — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/dashboard.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+        /* Ambient Orbs to fill blank spaces */
+        .ambient-orb {
+            position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.15;
+            animation: float 20s infinite alternate ease-in-out; z-index: -1; pointer-events: none;
+        }
+        .orb-1 { width: 400px; height: 400px; background: var(--green); top: 10%; right: -5%; }
+        .orb-2 { width: 300px; height: 300px; background: var(--cyan); bottom: 10%; left: -5%; animation-delay: -5s; }
+        .orb-3 { width: 250px; height: 250px; background: var(--purple); top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.05; }
+
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-20px, 30px) scale(1.1); } }
+        
+        /* Ensure the main container is tight */
+        .dash-main { padding-top: 20px; }
+        
+        /* Premium Background Video Overlay */
+        .bg-video-wrap {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2; opacity: 0.05; pointer-events: none;
+        }
+        .bg-video-wrap video { width: 100%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body>
+    <div class="bg-video-wrap">
+        <video autoplay loop muted playsinline><source src="/images/7581229-hd_1920_1080_30fps.mp4" type="video/mp4"></video>
+    </div>
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+
+<div class="dash-layout">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="dash-sidebar">
+        <a class="sb-logo" href="/" style="text-decoration:none;cursor:pointer"><div class="sb-logo-icon">AI</div><div class="sb-logo-text">Intern<span>AI</span></div></a>
+        <nav class="sb-nav">
+            <a class="sb-item active" href="/dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+            <a class="sb-item" href="/bot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>AI Job Scanner</a>
+            <a class="sb-item" href="/mock-interview/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>Mock Interview</a>
+            <div class="sb-divider"></div>
+            <a class="sb-item" id="navCoverLetter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Cover Letter</a>
+            <a class="sb-item" href="/profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+            <a class="sb-item" href="javascript:void(0)" onclick="logoutDashboard()" style="color: #ff5c5c; margin-top: auto;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</a>
+        </nav>
+        <div class="sb-user">
+            <img class="sb-avatar" src="/images/pexels-sora-shimazaki-5668863.jpg" alt="User">
+            <div><div class="sb-uname" id="sidebarName">Loading...</div><div class="sb-urole" id="sidebarRole">—</div></div>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <main class="dash-main">
+        <!-- Top Bar -->
+        <div class="dash-topbar">
+            <div class="dash-greeting">
+                <h1 id="greetingText">Welcome back</h1>
+                <p id="greetingSubText">Analyzing your career trajectory...</p>
+            </div>
+            <div class="topbar-actions">
+                <button class="tb-btn tb-btn-ghost" onclick="location.href='/profile'">⚙ Profile</button>
+                <button class="tb-btn tb-btn-primary" onclick="location.href='/bot'">⚡ Live Scan</button>
+            </div>
+        </div>
+
+        <!-- Stats Row - Tighter -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card"><div class="stat-icon" style="background:rgba(0,232,123,0.1);color:var(--green)">🎯</div><div class="stat-val" id="statMatches">0</div><div class="stat-label">Matches</div><div class="stat-badge" style="background:rgba(0,232,123,0.1);color:var(--green)">Live</div></div>
+            <div class="stat-card"><div class="stat-icon" style="background:rgba(0,212,255,0.1);color:var(--cyan)">📊</div><div class="stat-val" id="statScore">0%</div><div class="stat-label">Match Score</div><div class="stat-badge" style="background:rgba(0,212,255,0.1);color:var(--cyan)">AI</div></div>
+            <div class="stat-card"><div class="stat-icon" style="background:rgba(139,92,246,0.1);color:var(--purple)">🎤</div><div class="stat-val" id="statInterviews">0</div><div class="stat-label">Interviews</div></div>
+            <div class="stat-card"><div class="stat-icon" style="background:rgba(245,158,11,0.1);color:var(--orange)">🔥</div><div class="stat-val" id="statStreak">1</div><div class="stat-label">Day Streak</div></div>
+        </div>
+
+        <!-- Integrated Main Content to fill space -->
+        <div class="grid-main" style="grid-template-columns: 1.8fr 1.2fr;">
+            <!-- Left: Top Matches + Skills (Unified Section) -->
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div class="bento">
+                    <div class="bento-glow"></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+                        <div><div class="bento-title">Top AI Recommendations</div><div class="bento-sub">Tailored internship listings syncing in real-time</div></div>
+                    </div>
+                    <div id="jobFeed">
+                        <div class="loader"><div class="spinner"></div></div>
+                    </div>
+                </div>
+                
+                <div class="grid-2" style="margin-bottom: 0;">
+                    <div class="bento">
+                        <div class="bento-glow"></div>
+                        <div class="bento-title">Resume Skills</div>
+                        <div id="skillsContainer" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;">
+                            <span class="skill-tag pulse">Analyzing...</span>
+                        </div>
+                    </div>
+                    <div class="img-card">
+                        <img src="/images/pexels-fauxels-3184357.jpg" alt="Networking">
+                        <div class="ic-overlay"></div>
+                        <div class="ic-content">
+                            <div style="font-family:var(--display);font-weight:700;font-size:14px;color:var(--green)">Network Advantage</div>
+                            <p style="font-size:10px;color:#999">Matches are 3x more likely with community insights.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: High-Impact Video Actions -->
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div class="video-card" style="min-height: 220px;">
+                    <video autoplay loop muted playsinline><source src="/images/8347237-uhd_3840_2160_25fps.mp4" type="video/mp4"></video>
+                    <div class="vc-overlay"></div>
+                    <div class="vc-content">
+                        <div style="font-size:10px;font-weight:700;color:var(--cyan);text-transform:uppercase;margin-bottom:4px">Real-time Simulation</div>
+                        <div style="font-family:var(--display);font-weight:800;font-size:18px;margin-bottom:6px">Mock Interview AI</div>
+                        <p style="font-size:11px;color:#ccc;margin-bottom:12px">Refine your pitch with our adaptive AI proctor.</p>
+                        <button class="tb-btn tb-btn-primary" style="width:100%" onclick="location.href='/mock-interview/'">Start Now</button>
+                    </div>
+                </div>
+
+                <div class="video-card" style="min-height: 220px;">
+                    <video autoplay loop muted playsinline><source src="/images/10150923-uhd_3840_2160_24fps.mp4" type="video/mp4"></video>
+                    <div class="vc-overlay"></div>
+                    <div class="vc-content">
+                        <div style="font-size:10px;font-weight:700;color:var(--orange);text-transform:uppercase;margin-bottom:4px">Smart Writing</div>
+                        <div style="font-family:var(--display);font-weight:800;font-size:18px;margin-bottom:6px">Cover Letter AI</div>
+                        <p style="font-size:11px;color:#ccc;margin-bottom:12px">Generate tailored letters in seconds.</p>
+                        <button class="tb-btn" style="width:100%;background:var(--orange);color:#000" id="ctaCoverLetter">Generate Document</button>
+                    </div>
+                </div>
+
+                <div class="bento">
+                    <div class="bento-title">Market Activity</div>
+                    <div id="trendsContainer" style="margin-top: 10px;">
+                        <div class="loader"><div class="spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full-Width AI Scanner Video Banner -->
+        <div class="video-card" style="min-height:120px;margin-bottom:12px">
+            <video autoplay loop muted playsinline><source src="/images/7581303-hd_1920_1080_30fps.mp4" type="video/mp4"></video>
+            <div class="vc-overlay" style="background:linear-gradient(90deg,rgba(9,9,11,0.9) 40%,rgba(9,9,11,0.4))"></div>
+            <div class="vc-content" style="flex-direction:row;align-items:center;justify-content:space-between;padding:24px 28px">
+                <div>
+                    <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">🔍 AI-Powered</div>
+                    <div style="font-family:var(--display);font-weight:800;font-size:20px">Scan 8+ Platforms for Internships</div>
+                    <p style="font-size:11px;color:#999;margin-top:4px">LinkedIn · Indeed · Internshala · Glassdoor · Naukri · Unstop · Remotive</p>
+                </div>
+                <button class="tb-btn tb-btn-primary" style="flex-shrink:0;padding:12px 28px;font-size:13px" onclick="location.href='/bot'">⚡ Run AI Scan</button>
+            </div>
+        </div>
+
+        <!-- Skill Gap + Interview History side by side -->
+        <div class="grid-2" style="margin-bottom:12px">
+            <div class="bento">
+                <div class="bento-glow"></div>
+                <div class="bento-title">Skill Gap Analysis</div>
+                <div class="bento-sub">Skills employers demand that you should learn</div>
+                <div id="gapContainer" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <div class="loader"><div class="spinner"></div></div>
+                </div>
+            </div>
+            <div class="bento">
+                <div class="bento-glow"></div>
+                <div class="bento-title">Interview History</div>
+                <div class="bento-sub">Your recent mock interview sessions</div>
+                <div id="interviewHistory">
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px">
+                        <div style="width:36px;height:36px;border-radius:8px;background:rgba(139,92,246,0.1);display:flex;align-items:center;justify-content:center;font-size:14px">🎤</div>
+                        <div style="flex:1"><div style="font-size:12px;font-weight:600">Frontend Developer</div><div style="font-size:10px;color:var(--muted)">Medium • 5 Questions</div></div>
+                        <div style="font-size:12px;font-weight:700;color:var(--green)">80%</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px">
+                        <div style="width:36px;height:36px;border-radius:8px;background:rgba(0,212,255,0.1);display:flex;align-items:center;justify-content:center;font-size:14px">🎤</div>
+                        <div style="flex:1"><div style="font-size:12px;font-weight:600">Python Developer</div><div style="font-size:10px;color:var(--muted)">Hard • 8 Questions</div></div>
+                        <div style="font-size:12px;font-weight:700;color:var(--cyan)">72%</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;border:1px solid var(--border)">
+                        <div style="width:36px;height:36px;border-radius:8px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;font-size:14px">🎤</div>
+                        <div style="flex:1"><div style="font-size:12px;font-weight:600">Data Science</div><div style="font-size:10px;color:var(--muted)">Easy • 4 Questions</div></div>
+                        <div style="font-size:12px;font-weight:700;color:var(--orange)">90%</div>
+                    </div>
+                    <button class="tb-btn tb-btn-ghost" style="width:100%;margin-top:12px;font-size:11px" onclick="location.href='/mock-interview/'">View All Sessions →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom decorative row with images -->
+        <div class="grid-3">
+            <div class="img-card" style="min-height:110px">
+                <img src="/images/pexels-fauxels-3184429.jpg" alt="Collaboration">
+                <div class="ic-overlay"></div>
+                <div class="ic-content">
+                    <div style="font-size:13px;font-weight:700">Enterprise Ready</div>
+                    <p style="font-size:10px;color:#999;margin-top:2px">Trusted by 500+ students</p>
+                </div>
+            </div>
+            <div class="img-card" style="min-height:110px">
+                <img src="/images/pexels-kindelmedia-8566521.jpg" alt="AI">
+                <div class="ic-overlay"></div>
+                <div class="ic-content">
+                    <div style="font-size:13px;font-weight:700">Smart Analysis</div>
+                    <p style="font-size:10px;color:#999;margin-top:2px">NLP-powered skill extraction</p>
+                </div>
+            </div>
+            <div class="img-card" style="min-height:110px">
+                <img src="/images/pexels-kindelmedia-8566526.jpg" alt="Futuristic">
+                <div class="ic-overlay"></div>
+                <div class="ic-content">
+                    <div style="font-size:13px;font-weight:700">Global Reach</div>
+                    <p style="font-size:10px;color:#999;margin-top:2px">Worldwide internship coverage</p>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ===== COVER LETTER MODAL ===== -->
+<div id="clModal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.85);backdrop-filter:blur(15px);align-items:center;justify-content:center;padding:20px">
+    <div class="bento" style="max-width:550px;width:100%;box-shadow:0 40px 100px rgba(0,0,0,0.9)">
+        <div style="height:3px;background:linear-gradient(90deg,var(--orange),#ff8c00);position:absolute;top:0;left:0;right:0;border-radius:16px 16px 0 0"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <div class="bento-title">✉️ Cover Letter AI</div>
+            <button id="clClose" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.05);color:#fff;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+        <div style="display:grid;grid-template-columns: 1fr 1fr;gap:12px;margin-bottom:12px">
+            <div><label style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:5px">Target Role</label><input type="text" id="clTitle" placeholder="Frontend Developer" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:10px;padding:10px;color:#fff;font-size:13px;outline:none"></div>
+            <div><label style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:5px">Target Company</label><input type="text" id="clCompany" placeholder="Google" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:10px;padding:10px;color:#fff;font-size:13px;outline:none"></div>
+        </div>
+        <div style="margin-bottom:15px">
+            <label style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:5px">Resume (Optional)</label>
+            <input type="file" id="clResume" accept=".pdf,application/pdf" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:10px;padding:9px;color:#bbb;font-size:12px;outline:none">
+            <div style="font-size:10px;color:var(--muted);margin-top:5px">If you skip upload, we will use your previously uploaded resume from registration/dashboard.</div>
+        </div>
+        <button id="clGenerate" class="tb-btn tb-btn-primary" style="width:100%;padding:12px;font-size:14px">Generate Document</button>
+        <div id="clError" style="display:none;margin-top:12px;padding:10px;border-radius:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:12px;text-align:center"></div>
+        <div id="clResult" style="display:none;margin-top:15px">
+            <textarea id="clEditor" style="width:100%;height:180px;background:rgba(0,0,0,0.5);border:1px solid var(--border);border-radius:10px;padding:12px;color:#ddd;font-size:12px;font-family:monospace;outline:none;resize:none;margin-bottom:12px"></textarea>
+            <div style="display:flex;gap:10px">
+                <button id="clDlPdf" class="tb-btn tb-btn-ghost" style="flex:1">Download PDF</button>
+                <button id="clDlDocx" class="tb-btn tb-btn-ghost" style="flex:1">Download DOCX</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden resume input -->
+<input type="file" id="hiddenResume" accept=".pdf" style="display:none">
+
+<script>
+const TOKEN = localStorage.getItem('token') || localStorage.getItem('session_id') || '';
+const AUTH = { 'Authorization': 'Bearer ' + TOKEN };
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+// ===== GREETING =====
+const h = new Date().getHours();
+const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+
+// ===== LOAD PROFILE =====
+async function loadProfile() {
+    try {
+        const res = await fetch('/api/profile', { headers: AUTH });
+        const data = await res.json();
+        if (data.profile) {
+            const p = data.profile;
+            const name = p.fullName || p.email?.split('@')[0] || 'User';
+            $('#greetingText').textContent = `${greet}, ${name.split(' ')[0]} 👋`;
+            $('#sidebarName').textContent = name;
+            $('#sidebarRole').textContent = p.role || 'AI Profile Active';
+            if (p.extractedSkills?.length) renderSkills(p.extractedSkills);
+        }
+    } catch(e) { console.log('Profile load err:', e); }
+}
+
+// ===== LOAD DASHBOARD DATA =====
+async function loadDashboard(customFd = null) {
+    try {
+        const fd = customFd || new FormData();
+        if (!customFd) fd.append('session_id', TOKEN);
+        const res = await fetch('/api/dashboard/analyze-resume', { method: 'POST', headers: AUTH, body: fd });
+        const d = await res.json();
+        if (d.session_id) {
+            localStorage.setItem('session_id', d.session_id);
+        }
+        if (d.error) { 
+            console.warn("Dashboard analysis fallback:", d.error);
+            // Don't clear the UI, just maybe show a small warning if we have demo data
+            return; 
+        }
+        
+        // Stats
+        animateNum($('#statMatches'), d.stats?.matchedInternships || 0);
+        animateNum($('#statScore'), d.stats?.avgMatchScore || 0, '%');
+        animateNum($('#statInterviews'), d.stats?.interviewsCompleted || 0);
+        animateNum($('#statStreak'), d.stats?.dayStreak || 0);
+        
+        // Skills
+        if (d.skills?.length) renderSkills(d.skills);
+        
+        // Jobs
+        renderJobs(d.topMatches || []);
+        
+        // Trends
+        renderTrends(d.marketTrends || []);
+        
+        // Gap
+        renderGap(d.skillGap || []);
+        
+        // Update name
+        if (d.name) { $('#sidebarName').textContent = d.name; $('#greetingText').textContent = `${greet}, ${d.name.split(' ')[0]} 👋`; }
+    } catch(e) { console.log('Dashboard err:', e); showFallback(''); }
+}
+
+function showFallback(msg) {
+    // Always show demo data so there's never blank space
+    renderJobs(DEMO_JOBS);
+    renderSkills(DEMO_SKILLS);
+    renderTrends(DEMO_TRENDS);
+    renderGap(DEMO_GAP);
+    animateNum($('#statMatches'), 12);
+    animateNum($('#statScore'), 87, '%');
+    animateNum($('#statInterviews'), 3);
+    animateNum($('#statStreak'), 5);
+}
+
+// ===== RENDERERS =====
+function renderSkills(skills) {
+    $('#skillsContainer').innerHTML = skills.map(s => `<span class="skill-tag">${s}</span>`).join('');
+}
+
+function renderJobs(jobs) {
+    if (!jobs || !jobs.length) { 
+        $('#jobFeed').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:350px;color:var(--muted);text-align:center;border:1px dashed rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.01)"><div style="font-size:32px;margin-bottom:10px">📭</div><div style="font-weight:600;color:#fff;margin-bottom:4px">No Matches Yet</div><div style="font-size:11px">Upload a more detailed resume to get AI recommendations</div></div>'; 
+        return; 
+    }
+    const colors = ['linear-gradient(135deg,#00E87B,#00D4FF)','linear-gradient(135deg,#8B5CF6,#EC4899)','linear-gradient(135deg,#F59E0B,#EF4444)','linear-gradient(135deg,#3B82F6,#06B6D4)','linear-gradient(135deg,#10B981,#6366F1)'];
+    $('#jobFeed').innerHTML = jobs.slice(0,5).map((j,i) => {
+        const initial = (j.company||j.title||'?')[0].toUpperCase();
+        const scoreColor = j.matchScore >= 90 ? 'var(--green)' : j.matchScore >= 80 ? 'var(--cyan)' : 'var(--orange)';
+        const scoreBg = j.matchScore >= 90 ? 'rgba(0,232,123,0.1)' : j.matchScore >= 80 ? 'rgba(0,212,255,0.1)' : 'rgba(245,158,11,0.1)';
+        return `<div class="job-item" onclick="if('${j.url}'!=='#')window.open('${j.url}','_blank')">
+            <div class="job-logo" style="background:${colors[i%5]}">${initial}</div>
+            <div style="flex:1;min-width:0"><div class="job-title">${j.title}</div><div class="job-meta">${j.company||'Company'} • ${j.mode||'On-site'}</div></div>
+            <div class="job-score" style="background:${scoreBg};color:${scoreColor}">${j.matchScore}%</div>
+        </div>`;
+    }).join('');
+}
+
+function renderTrends(trends) {
+    if (!trends || !trends.length) {
+        $('#trendsContainer').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:120px;color:var(--muted);text-align:center"><div style="font-size:24px;margin-bottom:5px">📉</div><div style="font-size:11px">Not enough data to show trends</div></div>';
+        return;
+    }
+    const maxPct = Math.max(...trends.map(t=>t.percent));
+    const tColors = ['var(--green)','var(--cyan)','var(--purple)','var(--orange)','#EC4899'];
+    $('#trendsContainer').innerHTML = trends.slice(0,5).map((t,i) => 
+        `<div class="trend-row"><div class="trend-label">${t.role}</div><div class="trend-bar"><div class="trend-fill" style="width:${(t.percent/maxPct)*100}%;background:${tColors[i%5]}"></div></div><div class="trend-pct">${t.percent}%</div></div>`
+    ).join('');
+}
+
+function renderGap(gaps) {
+    if (!gaps || !gaps.length) {
+        $('#gapContainer').innerHTML = '<div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:150px;color:var(--muted);text-align:center"><div style="font-size:24px;margin-bottom:5px">🔍</div><div style="font-size:11px">Upload a resume to unlock your skill gap analysis</div></div>';
+        return;
+    }
+    const pColors = { high: 'var(--green)', medium: 'var(--cyan)', low: 'var(--muted)' };
+    $('#gapContainer').innerHTML = gaps.slice(0,8).map(g => {
+        const w = Math.min(100, g.demand * 30);
+        return `<div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:600">${g.skill}</span><span style="font-size:9px;font-weight:700;color:${pColors[g.priority]}">${g.priority.toUpperCase()}</span></div><div class="gap-bar"><div class="gap-fill" style="width:${w}%;background:${pColors[g.priority]}"></div></div></div>`;
+    }).join('');
+}
+
+function animateNum(el, target, suffix='') {
+    let current = 0;
+    const step = Math.max(1, Math.ceil(target / 40));
+    const timer = setInterval(() => {
+        current += step;
+        if (current >= target) { current = target; clearInterval(timer); }
+        el.textContent = current + (suffix || '');
+    }, 30);
+}
+
+// ===== INTERVIEW HISTORY =====
+async function loadInterviewCount() {
+    try {
+        const res = await fetch('/api/interview-history', { headers: AUTH });
+        const d = await res.json();
+        if (d.history?.length) animateNum($('#statInterviews'), d.history.length);
+    } catch(e) {}
+}
+
+// ===== COVER LETTER MODAL =====
+const clModal = $('#clModal');
+function openCL() { clModal.style.display = 'flex'; gsap.from(clModal.children[0], {y:20,opacity:0,scale:.97,duration:.35}); }
+function closeCL() { gsap.to(clModal.children[0], {y:20,opacity:0,scale:.97,duration:.25,onComplete:()=>clModal.style.display='none'}); }
+
+$('#navCoverLetter').onclick = openCL;
+$('#ctaCoverLetter').onclick = openCL;
+$('#clClose').onclick = closeCL;
+
+$('#clGenerate').onclick = async () => {
+    const btn = $('#clGenerate'), err = $('#clError'), result = $('#clResult');
+    err.style.display = 'none'; result.style.display = 'none';
+    btn.disabled = true; btn.textContent = '⏳ Generating...';
+    const fd = new FormData();
+    fd.append('jobTitle', $('#clTitle').value);
+    fd.append('company', $('#clCompany').value);
+    fd.append('session_id', localStorage.getItem('session_id') || '');
+    const selectedResume = $('#clResume')?.files?.[0];
+    if (selectedResume) fd.append('resume', selectedResume);
+    try {
+        const res = await fetch('/api/generate-cover-letter', { 
+            method: 'POST', 
+            headers: AUTH,
+            body: fd 
+        });
+        const data = await res.json();
+        if (res.ok) { $('#clEditor').value = data.cover_letter; result.style.display = 'block'; btn.textContent = 'Regenerate'; }
+        else throw new Error(data.error || 'Failed');
+    } catch(e) { err.textContent = e.message; err.style.display = 'block'; btn.textContent = 'Generate Document'; }
+    btn.disabled = false;
+};
+
+async function dlCL(fmt) {
+    const text = $('#clEditor').value; if (!text) return;
+    try {
+        const res = await fetch('/api/download-cover-letter', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text, format:fmt}) });
+        if (res.ok) { const b = await res.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `Cover_Letter.${fmt}`; a.click(); }
+    } catch(e) { alert('Download failed'); }
+}
+$('#clDlPdf').onclick = () => dlCL('pdf');
+$('#clDlDocx').onclick = () => dlCL('docx');
+
+// ===== RESUME UPLOAD =====
+$('#hiddenResume').onchange = async function() {
+    if (this.files[0]) { 
+        const fd = new FormData();
+        fd.append('resume', this.files[0]);
+        // Call loadDashboard with the new file
+        await loadDashboard(fd); 
+    }
+};
+
+// ===== DEMO DATA (shown instantly, replaced by real API data) =====
+const DEMO_SKILLS = ['Python','JavaScript','React','Machine Learning','Node.js','SQL','Git','Docker','REST API','TensorFlow'];
+const DEMO_JOBS = [
+  {title:'Software Engineering Intern',company:'Google',mode:'Remote',matchScore:98,url:'#',insight:{tag:'FAANG',color:'#f59e0b'}},
+  {title:'AI Research Intern',company:'Meta',mode:'Hybrid',matchScore:95,url:'#',insight:{tag:'Research',color:'#4da0ff'}},
+  {title:'Full Stack Developer Intern',company:'Stripe',mode:'On-site',matchScore:91,url:'#',insight:{tag:'Startup',color:'#a855f7'}},
+  {title:'ML Engineer Intern',company:'OpenAI',mode:'Remote',matchScore:89,url:'#',insight:{tag:'AI-First',color:'#00D4FF'}},
+  {title:'Cloud DevOps Intern',company:'AWS',mode:'Remote',matchScore:84,url:'#',insight:{tag:'Cloud',color:'#10B981'}}
+];
+const DEMO_TRENDS = [
+  {role:'Software Engineer',percent:35},{role:'Data Science',percent:22},{role:'Machine Learning',percent:18},{role:'Web Development',percent:14},{role:'DevOps / Cloud',percent:11}
+];
+const DEMO_GAP = [
+  {skill:'Kubernetes',demand:5,priority:'high'},{skill:'AWS',demand:4,priority:'high'},{skill:'GraphQL',demand:3,priority:'medium'},{skill:'TypeScript',demand:3,priority:'medium'},{skill:'CI/CD',demand:2,priority:'medium'},{skill:'System Design',demand:2,priority:'low'},{skill:'Redis',demand:2,priority:'low'},{skill:'Terraform',demand:1,priority:'low'}
+];
+
+// Show demo data IMMEDIATELY so page is never blank
+renderJobs(DEMO_JOBS);
+renderSkills(DEMO_SKILLS);
+renderTrends(DEMO_TRENDS);
+renderGap(DEMO_GAP);
+animateNum($('#statMatches'), 12);
+animateNum($('#statScore'), 87, '%');
+animateNum($('#statInterviews'), 3);
+animateNum($('#statStreak'), 5);
+$('#sidebarName').textContent = 'User';
+$('#sidebarRole').textContent = 'AI Profile Active';
+$('#greetingText').textContent = `${greet}, there 👋`;
+
+// ===== INIT =====
+// Removed GSAP opacity animation for bentos to prevent them from getting stuck at opacity:0
+gsap.from('.stat-card', {y:20, opacity:0, duration:.4, stagger:.05, ease:'power2.out'});
+
+// Then try to load real data (will overwrite demo)
+loadProfile();
+loadDashboard();
+loadInterviewCount();
+
+function logoutDashboard() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('session_id');
+    window.location.href = '/login';
+}
+</script>
+</body>
+</html>

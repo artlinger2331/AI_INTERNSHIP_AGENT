@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternAI — AI Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Outfit', 'sans-serif'] },
+                    colors: { brandPrimary: '#00f0ff', brandSecondary: '#7000ff' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: #030305; color: #fff; overflow-x: hidden; }
+        .liquid-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; overflow: hidden; }
+        .blob { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.3; animation: float 20s infinite alternate ease-in-out; }
+        .blob-1 { width: 40vw; height: 40vw; background: var(--brandPrimary); top: 10%; right: -10%; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-5vw, 10vh) scale(1.1); } }
+        
+        .glass-panel {
+            background: rgba(20, 20, 25, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-top: 1px solid rgba(255, 255, 255, 0.15); border-left: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .skeu-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+        .skeu-input:focus { outline: none; border-color: var(--brandPrimary); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 10px rgba(0,240,255,0.2); }
+        .skeu-btn-primary { background: linear-gradient(180deg, #00f0ff 0%, #008ba3 100%); color: #001f25; box-shadow: inset 0 2px 4px rgba(255,255,255,0.8), inset 0 -4px 8px rgba(0,0,0,0.4), 0 10px 20px rgba(0,240,255,0.3); transition: all 0.3s; }
+        .skeu-btn-primary:hover { transform: translateY(-2px); box-shadow: inset 0 2px 4px rgba(255,255,255,0.8), 0 15px 30px rgba(0,240,255,0.4); }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <div class="liquid-bg"><div class="blob blob-1"></div></div>
+    
+    <nav class="glass-panel sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="/" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-sm font-medium text-white text-decoration-none">
+                    🏠 Home
+                </a>
+                <a href="/dashboard" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-sm font-medium text-white text-decoration-none">
+                    🔙 Dashboard
+                </a>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-sm font-medium text-gray-300">Profile Configuration</span>
+                <button onclick="logoutProfile()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors text-sm font-medium border border-red-500/20">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Log Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 max-w-4xl mx-auto w-full px-6 py-12 relative z-10">
+        <div class="glass-panel rounded-[2.5rem] p-8 md:p-12">
+            <div class="flex flex-col md:flex-row items-center gap-8 mb-12">
+                <div class="w-32 h-32 rounded-full bg-gradient-to-br from-[#00f0ff] to-[#7000ff] p-1 shadow-[0_0_30px_rgba(112,0,255,0.4)]">
+                    <img src="/images/pexels-tima-miroshnichenko-5439152.jpg" class="w-full h-full object-cover rounded-full border-4 border-[#030305]" alt="Profile">
+                </div>
+                <div>
+                    <h1 class="font-display text-4xl font-bold mb-2">Neural Profile</h1>
+                    <p class="text-gray-400">Your AI-extracted digital footprint. Edit your skills below to tune the matchmaking engine.</p>
+                </div>
+            </div>
+
+            <div id="profileForm" class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase">Full Name</label>
+                        <input type="text" id="fullName" class="w-full skeu-input rounded-xl px-4 py-3 text-white" value="John Doe">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase">Target Role</label>
+                        <input type="text" id="role" class="w-full skeu-input rounded-xl px-4 py-3 text-white" value="Software Engineer">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase">Extracted Skills (Comma Separated)</label>
+                    <textarea id="skills" rows="4" class="w-full skeu-input rounded-xl px-4 py-3 text-white font-mono text-sm leading-relaxed">Python, React, Machine Learning, Data Structures, Git, Agile</textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-panel rounded-2xl p-6 bg-white/5 border-white/10">
+                        <h3 class="font-bold text-lg mb-2">Update Source Resume</h3>
+                        <p class="text-sm text-gray-400 mb-4">Upload a new PDF to overwrite the AI's understanding of your background.</p>
+                        <div class="flex items-center gap-4">
+                            <input type="file" id="resumeUpload" accept=".pdf" class="hidden">
+                            <button onclick="document.getElementById('resumeUpload').click()" class="px-6 py-2 rounded-xl bg-white/10 border border-white/20 font-bold hover:bg-white/20 transition-colors">Select PDF</button>
+                            <span id="uploadStatus" class="text-sm text-[#00f0ff] font-medium hidden">Uploading & Parsing...</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-6 bg-gradient-to-br from-[#7000ff]/20 to-[#00f0ff]/20 border-[#00f0ff]/30">
+                        <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
+                            <span class="text-2xl">✨</span> AI Resume Builder
+                        </h3>
+                        <p class="text-sm text-gray-300 mb-4">Don't have a resume? Let AI generate a professional PDF resume from your details.</p>
+                        <div class="flex gap-3">
+                            <button onclick="document.getElementById('resumeWizardModal').classList.remove('hidden')" class="px-6 py-2 rounded-xl bg-[#00f0ff]/20 text-[#00f0ff] border border-[#00f0ff]/50 font-bold hover:bg-[#00f0ff]/30 transition-colors">
+                                Build My Resume
+                            </button>
+                            <button onclick="downloadResume()" class="px-4 py-2 rounded-xl bg-white/10 text-white border border-white/20 font-bold hover:bg-white/20 transition-colors flex items-center gap-2" title="Download Active PDF Resume">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end">
+                    <button id="saveBtn" class="skeu-btn-primary px-10 py-3.5 rounded-xl font-bold text-lg">
+                        Save Profile Configuration
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Resume-Now Style Multi-Step Wizard Modal -->
+    <div id="resumeWizardModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] hidden flex flex-col items-center pt-10 px-4 overflow-y-auto">
+        <div class="w-full max-w-3xl mb-4 flex justify-between items-center text-white">
+            <h2 class="text-2xl font-display font-bold flex items-center gap-2"><span class="text-[#00f0ff]">✨</span> Pro Resume Builder</h2>
+            <button onclick="document.getElementById('resumeWizardModal').classList.add('hidden')" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+        </div>
+        
+        <div class="glass-panel w-full max-w-3xl rounded-3xl overflow-hidden relative flex flex-col mb-20 bg-[#0a0a0f]">
+            <!-- Progress Bar -->
+            <div class="flex border-b border-white/10 text-xs font-bold uppercase tracking-wider text-gray-500 bg-white/5">
+                <div id="step1-tab" class="flex-1 text-center py-4 text-[#00f0ff] border-b-2 border-[#00f0ff]">1. Heading</div>
+                <div id="step2-tab" class="flex-1 text-center py-4">2. Summary</div>
+                <div id="step3-tab" class="flex-1 text-center py-4">3. Experience</div>
+                <div id="step4-tab" class="flex-1 text-center py-4">4. Education</div>
+                <div id="step5-tab" class="flex-1 text-center py-4">5. Skills</div>
+            </div>
+
+            <div class="p-8" id="wizardForm">
+                
+                <!-- STEP 1: HEADING -->
+                <div id="step1" class="wizard-step">
+                    <h3 class="text-2xl font-bold mb-1">Let's start with your contact information.</h3>
+                    <p class="text-gray-400 text-sm mb-2">Employers need to know how to reach you. Be sure your email and phone are correct.</p>
+                    <p class="text-xs text-gray-500 mb-4">💡 Tip: Use a professional email address (not your party nickname!) and a phone with a clear voicemail.</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">First Name</label><input type="text" id="wizFirstName" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="John"></div>
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">Last Name</label><input type="text" id="wizLastName" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="Doe"></div>
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">Target Position/Role</label><input type="text" id="wizProfession" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="e.g. Software Engineer, Data Analyst"></div>
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">City, State</label><input type="text" id="wizLocation" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="e.g. San Francisco, CA"></div>
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">Phone Number</label><input type="text" id="wizPhone" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="(555) 123-4567"></div>
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">Professional Email</label><input type="text" id="wizEmail" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="john@example.com"></div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: SUMMARY -->
+                <div id="step2" class="wizard-step hidden">
+                    <h3 class="text-2xl font-bold mb-1">Briefly describe your professional value.</h3>
+                    <p class="text-gray-400 text-sm mb-2">This is the first thing employers will read. Don't worry if it's brief—our AI will enhance it!</p>
+                    <p class="text-xs text-gray-500 mb-4">💡 Tip: Include your years of experience, key strengths, and what excites you about the field.</p>
+                    <textarea id="wizSummary" rows="6" placeholder="E.g., I'm a software developer with 2 years of experience in Python and web development. I love building scalable applications and working with teams on challenging problems." class="w-full skeu-input rounded-xl px-4 py-3 text-white leading-relaxed"></textarea>
+                </div>
+
+                <!-- STEP 3: EXPERIENCE -->
+                <div id="step3" class="wizard-step hidden">
+                    <h3 class="text-2xl font-bold mb-1">Tell us about your professional experience.</h3>
+                    <p class="text-gray-400 text-sm mb-2">Start with your most recent job or internship.</p>
+                    <p class="text-xs text-gray-500 mb-4">💡 Tip: Share what you did and the impact you made. Our AI will format it professionally!</p>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">Job Title</label><input type="text" id="wizJobTitle" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="e.g., Junior Backend Developer"></div>
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">Company</label><input type="text" id="wizEmployer" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="e.g., TechCorp Inc."></div>
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">Start Date (MM/YYYY)</label><input type="text" id="wizJobStart" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="01/2023"></div>
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">End Date (MM/YYYY or Present)</label><input type="text" id="wizJobEnd" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="12/2023"></div>
+                    </div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">What did you accomplish? (Responsibilities, Projects, Results)</label>
+                    <textarea id="wizJobDesc" rows="4" placeholder="E.g., Developed REST APIs using Node.js and Express. Optimized database queries reducing response time by 40%. Led team of 3 on feature development." class="w-full skeu-input rounded-xl px-4 py-3 text-white leading-relaxed"></textarea>
+                </div>
+
+                <!-- STEP 4: EDUCATION -->
+                <div id="step4" class="wizard-step hidden">
+                    <h3 class="text-2xl font-bold mb-1">Tell us about your education.</h3>
+                    <p class="text-gray-400 text-sm mb-2">Include your degree, university, and graduation year.</p>
+                    <p class="text-xs text-gray-500 mb-4">💡 Tip: Include any honors, GPA, or relevant coursework if impressive!</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">University/School Name</label><input type="text" id="wizSchool" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="e.g., MIT, Stanford"></div>
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">Location</label><input type="text" id="wizSchoolLoc" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="e.g., Cambridge, MA"></div>
+                        <div class="col-span-2"><label class="block text-xs font-semibold text-gray-400 mb-1">Degree (e.g., Bachelor of Science in Computer Science)</label><input type="text" id="wizDegreeFull" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="B.S. in Computer Science"></div>
+                        <div><label class="block text-xs font-semibold text-gray-400 mb-1">Graduation Year</label><input type="text" id="wizGradYear" class="w-full skeu-input rounded-xl px-4 py-3 text-white" placeholder="2024"></div>
+                    </div>
+                </div>
+
+                <!-- STEP 5: SKILLS -->
+                <div id="step5" class="wizard-step hidden">
+                    <h3 class="text-2xl font-bold mb-1">What skills should we highlight?</h3>
+                    <p class="text-gray-400 text-sm mb-2">These are what employers will look for. Include both technical and soft skills.</p>
+                    <p class="text-xs text-gray-500 mb-4">💡 Tip: List 8-15 skills. Mix technical (Python, React) with soft skills (Communication, Leadership). Separate with commas.</p>
+                    <textarea id="wizSkillsList" rows="5" placeholder="E.g., Python, JavaScript, React, Node.js, REST APIs, Git, Problem Solving, Team Collaboration, Agile, Docker, AWS, Communication" class="w-full skeu-input rounded-xl px-4 py-3 text-white leading-relaxed"></textarea>
+                </div>
+
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="p-6 border-t border-white/10 flex justify-between bg-black/40">
+                <button id="wizBackBtn" onclick="wizPrev()" class="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors font-bold invisible">Back</button>
+                <button id="wizNextBtn" onclick="wizNext()" class="skeu-btn-primary px-10 py-3 rounded-xl font-bold">Next</button>
+                <button id="wizFinishBtn" class="skeu-btn-primary px-10 py-3 rounded-xl font-bold hidden bg-gradient-to-r from-green-400 to-emerald-600">Finish & Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        gsap.from(".glass-panel", {y: 30, opacity: 0, duration: 0.8, ease: "power3.out"});
+
+        // Fetch existing profile data (mocked integration)
+        async function loadProfile() {
+            try {
+                const token = localStorage.getItem('token');
+                if(!token) return;
+                const res = await fetch('/api/profile', { headers: { 'Authorization': `Bearer ${token}` }});
+                if(res.ok) {
+                    const data = await res.json();
+                    if(data.profile) {
+                        document.getElementById('fullName').value = data.profile.fullName || '';
+                        document.getElementById('role').value = data.profile.role || '';
+                        if(data.profile.extractedSkills) {
+                            document.getElementById('skills').value = data.profile.extractedSkills.join(', ');
+                        }
+                    }
+                }
+            } catch(e) {}
+        }
+        loadProfile();
+
+        document.getElementById('saveBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('saveBtn');
+            btn.innerText = 'Saving...';
+            try {
+                const token = localStorage.getItem('token');
+                const skillsArr = document.getElementById('skills').value.split(',').map(s=>s.trim()).filter(s=>s);
+                const payload = {
+                    fullName: document.getElementById('fullName').value,
+                    role: document.getElementById('role').value,
+                    skills: skillsArr
+                };
+                const res = await fetch('/api/profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if(res.ok) {
+                    btn.innerText = 'Saved Successfully ✓';
+                    setTimeout(() => btn.innerText = 'Save Profile Configuration', 2000);
+                }
+            } catch(e) {
+                btn.innerText = 'Error saving';
+                setTimeout(() => btn.innerText = 'Save Profile Configuration', 2000);
+            }
+        });
+
+        // --- Wizard Logic ---
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        function updateWizardUI() {
+            // Update tabs
+            for(let i=1; i<=totalSteps; i++) {
+                const tab = document.getElementById(`step${i}-tab`);
+                const stepDiv = document.getElementById(`step${i}`);
+                if(i === currentStep) {
+                    tab.classList.add('text-[#00f0ff]', 'border-b-2', 'border-[#00f0ff]');
+                    stepDiv.classList.remove('hidden');
+                } else {
+                    tab.classList.remove('text-[#00f0ff]', 'border-b-2', 'border-[#00f0ff]');
+                    stepDiv.classList.add('hidden');
+                }
+            }
+            
+            // Buttons
+            document.getElementById('wizBackBtn').classList.toggle('invisible', currentStep === 1);
+            if(currentStep === totalSteps) {
+                document.getElementById('wizNextBtn').classList.add('hidden');
+                document.getElementById('wizFinishBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('wizNextBtn').classList.remove('hidden');
+                document.getElementById('wizFinishBtn').classList.add('hidden');
+            }
+        }
+
+        function wizNext() {
+            if(currentStep < totalSteps) {
+                currentStep++;
+                updateWizardUI();
+            }
+        }
+
+        function wizPrev() {
+            if(currentStep > 1) {
+                currentStep--;
+                updateWizardUI();
+            }
+        }
+
+        document.getElementById('wizFinishBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('wizFinishBtn');
+            btn.innerText = 'Generating Pro PDF...';
+            btn.disabled = true;
+
+            const payload = {
+                firstName: document.getElementById('wizFirstName').value,
+                lastName: document.getElementById('wizLastName').value,
+                profession: document.getElementById('wizProfession').value,
+                location: document.getElementById('wizLocation').value,
+                phone: document.getElementById('wizPhone').value,
+                email: document.getElementById('wizEmail').value,
+                summary: document.getElementById('wizSummary').value,
+                
+                jobTitle: document.getElementById('wizJobTitle').value,
+                employer: document.getElementById('wizEmployer').value,
+                jobStart: document.getElementById('wizJobStart').value,
+                jobEnd: document.getElementById('wizJobEnd').value,
+                jobDesc: document.getElementById('wizJobDesc').value,
+                
+                school: document.getElementById('wizSchool').value,
+                schoolLoc: document.getElementById('wizSchoolLoc').value,
+                degree: document.getElementById('wizDegreeFull').value,
+                gradYear: document.getElementById('wizGradYear').value,
+                
+                skills: document.getElementById('wizSkillsList').value
+            };
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('/api/generate-resume', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(payload)
+                });
+                
+                if(res.ok) {
+                    btn.innerText = 'Resume Created!';
+                    downloadResume();
+                    setTimeout(() => {
+                        document.getElementById('resumeWizardModal').classList.add('hidden');
+                        btn.innerText = 'Finish & Generate';
+                        btn.disabled = false;
+                        window.location.reload(); 
+                    }, 1500);
+                } else {
+                    throw new Error('Failed to generate resume');
+                }
+            } catch(e) {
+                btn.innerText = 'Error Generating';
+                setTimeout(() => {
+                    btn.innerText = 'Finish & Generate';
+                    btn.disabled = false;
+                }, 2000);
+            }
+        });
+
+        function downloadResume() {
+            const token = localStorage.getItem('token');
+            if(!token) return alert('Please log in first.');
+            window.open(`/api/download-resume?token=${token}`, '_blank');
+        }
+
+        function logoutProfile() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('session_id');
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

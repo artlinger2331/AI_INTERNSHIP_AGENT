@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternAI — Create Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Outfit', 'sans-serif'] },
+                    colors: { brandGreen: '#00E87B', brandCyan: '#00D4FF' }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg-primary: #09090B;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --accent-green: #00E87B;
+            --accent-green-dim: rgba(0, 232, 123, 0.15);
+        }
+        body { background: var(--bg-primary); color: #fff; overflow-x: hidden; }
+        
+        .bento-card {
+            background: var(--bg-card); 
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+        
+        .skeu-input {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); transition: all 0.3s;
+        }
+        .skeu-input:focus { outline: none; border-color: var(--accent-green); box-shadow: 0 0 15px rgba(0,232,123,0.15); }
+        
+        .btn-primary-lg {
+            background: var(--accent-green); color: #000;
+            box-shadow: 0 0 20px rgba(0, 232, 123, 0.25); transition: all 0.35s;
+        }
+        .btn-primary-lg:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(0, 232, 123, 0.4);
+        }
+        .btn-primary-lg:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        /* Ambient floating orbs in background to match landing */
+        .ambient-orb {
+            position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.2;
+            animation: orbFloat 20s ease-in-out infinite alternate; pointer-events: none; z-index: -1;
+        }
+        @keyframes orbFloat {
+            0% { transform: translate(0,0) scale(1); }
+            100% { transform: translate(40px, -40px) scale(1.1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center relative py-12">
+    <!-- Background matching Landing Page -->
+    <div class="ambient-orb" style="width: 500px; height: 500px; background: #00E87B; top: -10%; left: -10%;"></div>
+    <div class="ambient-orb" style="width: 400px; height: 400px; background: #00D4FF; bottom: -10%; right: -5%; animation-delay: -5s;"></div>
+
+    <video class="fixed inset-0 w-full h-full object-cover opacity-10 mix-blend-screen z-[-2]" autoplay loop muted playsinline>
+        <source src="/images/7651776-uhd_3840_2160_30fps.mp4" type="video/mp4">
+    </video>
+    <div class="fixed inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.02)1px,transparent_1px)] bg-[size:40px_40px] opacity-20 z-[-2]"></div>
+
+    <div class="w-full max-w-xl px-4 sm:px-6 z-10">
+        <div class="flex justify-center mb-8 reveal">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brandGreen to-brandCyan flex items-center justify-center font-bold text-black text-lg">AI</div>
+                <span class="font-display font-bold text-3xl">Intern<span class="text-brandGreen">AI</span></span>
+            </a>
+        </div>
+
+        <div class="bento-card rounded-3xl p-8 md:p-10 relative overflow-hidden reveal">
+            <!-- Decorative top border glow -->
+            <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brandGreen to-transparent opacity-50"></div>
+            
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-display font-bold mb-2 tracking-tight">Create your account</h2>
+                <p class="text-gray-400 text-sm">Upload your resume to instantly auto-fill your profile and unlock AI matching.</p>
+            </div>
+            
+            <form id="registerForm" class="space-y-5" enctype="multipart/form-data">
+                
+                <!-- Resume Upload Area -->
+                <div class="relative group">
+                    <!-- Added title="" to brutally suppress browser "No file chosen" tooltip -->
+                    <input type="file" id="resume" accept=".pdf,.doc,.docx" title="" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                    <div id="dropzone" class="border border-dashed border-white/20 rounded-2xl p-6 text-center bg-white/5 group-hover:bg-brandGreen/5 group-hover:border-brandGreen/40 transition-all duration-300 relative overflow-hidden">
+                        <div class="w-12 h-12 mx-auto rounded-xl bg-brandGreen/10 text-brandGreen flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        </div>
+                        <p class="font-bold text-sm text-white mb-1">Upload Resume (Optional)</p>
+                        <p class="text-xs text-gray-500">Drop PDF/DOCX here. We'll automatically parse your skills.</p>
+                        <p id="fileNameDisplay" class="text-sm font-bold text-brandGreen mt-2 hidden"></p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-400 mb-2 uppercase tracking-widest">First Name</label>
+                        <input type="text" id="first_name" required class="w-full skeu-input rounded-xl px-4 py-3 text-white placeholder-gray-600 font-medium text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-400 mb-2 uppercase tracking-widest">Last Name</label>
+                        <input type="text" id="last_name" required class="w-full skeu-input rounded-xl px-4 py-3 text-white placeholder-gray-600 font-medium text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold text-gray-400 mb-2 uppercase tracking-widest">Email Address</label>
+                    <input type="email" id="email" required class="w-full skeu-input rounded-xl px-4 py-3 text-white placeholder-gray-600 font-medium text-sm">
+                </div>
+                
+                <div>
+                    <label class="block text-[11px] font-semibold text-gray-400 mb-2 uppercase tracking-widest">Password</label>
+                    <input type="password" id="password" required class="w-full skeu-input rounded-xl px-4 py-3 text-white placeholder-gray-600 font-medium text-sm">
+                </div>
+                
+                <div id="error-msg" class="hidden text-red-400 text-sm p-3 rounded-lg bg-red-500/10 border border-red-500/20"></div>
+                
+                <button type="submit" id="submitBtn" class="w-full btn-primary-lg py-4 rounded-xl font-bold text-base mt-2 flex justify-center items-center gap-2">
+                    Start AI Matching
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </form>
+            
+            <div class="mt-8 text-center text-sm text-gray-500">
+                Already have an account? <a href="/login" class="text-white font-medium hover:text-brandGreen transition-colors">Sign In</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script>
+        // Smooth entrance
+        gsap.fromTo('.reveal', 
+            { opacity: 0, y: 30, scale: 0.98 }, 
+            { opacity: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.15, ease: 'power3.out' }
+        );
+        
+        // Handle file change visuals
+        const fileInput = document.getElementById('resume');
+        const dropzone = document.getElementById('dropzone');
+        
+        fileInput.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if(fileName) {
+                const display = document.getElementById('fileNameDisplay');
+                display.textContent = 'Selected: ' + fileName;
+                display.classList.remove('hidden');
+                dropzone.classList.add('border-brandGreen', 'bg-brandGreen/5');
+            } else {
+                document.getElementById('fileNameDisplay').classList.add('hidden');
+                dropzone.classList.remove('border-brandGreen', 'bg-brandGreen/5');
+            }
+        });
+
+        // Form Submit Handler
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const errorDiv = document.getElementById('error-msg');
+            const originalBtnHtml = btn.innerHTML;
+            
+            btn.innerHTML = `<span class="animate-spin w-5 h-5 border-2 border-black/20 border-t-black rounded-full inline-block"></span> Processing...`;
+            btn.disabled = true;
+            errorDiv.classList.add('hidden');
+            
+            const formData = new FormData();
+            formData.append('first_name', document.getElementById('first_name').value);
+            formData.append('last_name', document.getElementById('last_name').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('password', document.getElementById('password').value);
+            
+            if(fileInput.files[0]) {
+                formData.append('resume', fileInput.files[0]);
+                btn.innerHTML = `<span class="animate-spin w-5 h-5 border-2 border-black/20 border-t-black rounded-full inline-block"></span> AI is parsing skills...`;
+            }
+            
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    localStorage.setItem('token', data.token);
+                    if(data.session_id) {
+                        localStorage.setItem('session_id', data.session_id);
+                    }
+                    window.location.href = '/dashboard';
+                } else {
+                    throw new Error(data.error || 'Registration failed');
+                }
+            } catch(err) {
+                errorDiv.innerText = err.message;
+                errorDiv.classList.remove('hidden');
+                btn.innerHTML = originalBtnHtml;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

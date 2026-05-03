@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternAI — AI-Powered Internship Finder & Career Platform</title>
+    <meta name="description" content="InternAI uses advanced AI agents to find internships, parse resumes, run mock interviews, and generate cover letters — all in one platform.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- GSAP + Lenis Smooth Scroll -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+
+    <style>
+        /* ======================================================================
+           DESIGN SYSTEM — InternAI Premium Landing
+           Inspired by: Dribbble SoloPilot & AI Agent Website
+           ====================================================================== */
+        :root {
+            --bg-primary: #09090B;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #FAFAFA;
+            --text-secondary: #A1A1AA;
+            --text-muted: #71717A;
+            --accent-green: #00E87B;
+            --accent-green-dim: rgba(0, 232, 123, 0.15);
+            --accent-cyan: #00D4FF;
+            --accent-cyan-dim: rgba(0, 212, 255, 0.12);
+            --accent-purple: #8B5CF6;
+            --accent-orange: #F59E0B;
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-xl: 36px;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: 'Outfit', 'Inter', sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        html.lenis, html.lenis body { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto !important; }
+        .lenis.lenis-stopped { overflow: hidden; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        img { max-width: 100%; display: block; }
+        button { cursor: pointer; border: none; outline: none; font-family: inherit; }
+
+        /* ======================================================================
+           ANIMATED BG
+           ====================================================================== */
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none; overflow: hidden;
+        }
+        .ambient-orb {
+            position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.35;
+            animation: orbFloat 25s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 600px; height: 600px; background: var(--accent-green); top: -15%; left: -10%; animation-duration: 28s; }
+        .orb-2 { width: 500px; height: 500px; background: var(--accent-cyan); bottom: -20%; right: -8%; animation-delay: -8s; animation-duration: 22s; }
+        .orb-3 { width: 350px; height: 350px; background: var(--accent-purple); top: 50%; left: 40%; opacity: 0.2; animation-delay: -14s; animation-duration: 30s; }
+
+        @keyframes orbFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(40px, 60px) scale(1.08); }
+            66% { transform: translate(-30px, -40px) scale(0.95); }
+            100% { transform: translate(20px, -20px) scale(1.03); }
+        }
+
+        /* Dot grid overlay */
+        .dot-grid {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none; opacity: 0.15;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* ======================================================================
+           NAVBAR
+           ====================================================================== */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
+            padding: 0 40px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .navbar.scrolled {
+            background: rgba(9, 9, 11, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .navbar-inner {
+            max-width: 1280px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 0;
+        }
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .nav-logo-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 800; color: #000;
+        }
+        .nav-logo-text {
+            font-family: var(--font-display); font-weight: 700; font-size: 22px;
+            color: var(--text-primary);
+        }
+        .nav-logo-text span { color: var(--accent-green); }
+
+        .nav-links {
+            display: flex; align-items: center; gap: 36px;
+        }
+        .nav-links a {
+            font-size: 14px; font-weight: 500; color: var(--text-secondary);
+            transition: color 0.3s; letter-spacing: 0.01em;
+        }
+        .nav-links a:hover { color: var(--text-primary); }
+
+        .nav-actions {
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        .btn-ghost {
+            padding: 10px 22px; border-radius: var(--radius-sm);
+            font-size: 14px; font-weight: 600; color: var(--text-secondary);
+            background: transparent; border: 1px solid var(--border-subtle);
+            transition: all 0.3s;
+        }
+        .btn-ghost:hover {
+            color: var(--text-primary); border-color: var(--border-hover);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .btn-primary {
+            padding: 10px 24px; border-radius: var(--radius-sm);
+            font-size: 14px; font-weight: 600; color: #000;
+            background: var(--accent-green);
+            transition: all 0.3s; position: relative; overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 232, 123, 0.25);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 30px rgba(0, 232, 123, 0.4);
+        }
+
+        .btn-primary-lg {
+            padding: 16px 36px; border-radius: var(--radius-md);
+            font-size: 16px; font-weight: 700; color: #000;
+            background: var(--accent-green);
+            transition: all 0.35s; position: relative; overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 232, 123, 0.3);
+            display: inline-flex; align-items: center; gap: 10px;
+        }
+        .btn-primary-lg:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px rgba(0, 232, 123, 0.45);
+        }
+
+        .btn-secondary-lg {
+            padding: 16px 36px; border-radius: var(--radius-md);
+            font-size: 16px; font-weight: 600; color: var(--text-primary);
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border-subtle);
+            transition: all 0.35s;
+            display: inline-flex; align-items: center; gap: 10px;
+        }
+        .btn-secondary-lg:hover {
+            background: rgba(255,255,255,0.1); border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        /* ======================================================================
+           BADGE / PILL
+           ====================================================================== */
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 16px 6px 8px; border-radius: 100px;
+            background: var(--accent-green-dim);
+            border: 1px solid rgba(0, 232, 123, 0.2);
+            font-size: 13px; font-weight: 600; color: var(--accent-green);
+            letter-spacing: 0.02em;
+        }
+        .hero-badge .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        /* ======================================================================
+           HERO SECTION
+           ====================================================================== */
+        .hero {
+            position: relative; z-index: 10;
+            min-height: 100vh; display: flex; align-items: center;
+            padding: 120px 40px 80px;
+        }
+        .hero-inner {
+            max-width: 1280px; margin: 0 auto; width: 100%;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
+            align-items: center;
+        }
+        .hero-content { display: flex; flex-direction: column; gap: 28px; }
+
+        .hero-title {
+            font-family: var(--font-display); font-weight: 800;
+            font-size: clamp(42px, 5.5vw, 72px); line-height: 1.08;
+            letter-spacing: -0.03em;
+        }
+        .hero-title .line { display: block; }
+        .hero-title .highlight {
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-desc {
+            font-size: 18px; color: var(--text-secondary); max-width: 520px;
+            line-height: 1.7; font-weight: 400;
+        }
+
+        .hero-cta { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
+
+        .hero-stats-row {
+            display: flex; gap: 40px; margin-top: 16px;
+        }
+        .hero-stat { display: flex; flex-direction: column; }
+        .hero-stat-value {
+            font-family: var(--font-display); font-weight: 800; font-size: 28px;
+            color: var(--text-primary);
+        }
+        .hero-stat-value .green { color: var(--accent-green); }
+        .hero-stat-label {
+            font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px;
+        }
+
+        /* Hero Visual */
+        .hero-visual {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 560px;
+            padding: 24px 12px;
+        }
+        .hero-visual-orb {
+            width: 100%;
+            max-width: 540px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            animation: heroFloat 6s ease-in-out infinite;
+        }
+        .hero-visual-orb img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            object-position: center;
+            border-radius: var(--radius-xl);
+            background: #0b1118;
+            filter: drop-shadow(0 0 60px rgba(0, 232, 123, 0.2));
+        }
+
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* Floating glass cards around orb */
+        .float-card {
+            position: absolute; padding: 14px 18px; border-radius: var(--radius-sm);
+            background: rgba(20, 20, 25, 0.7); backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px;
+            animation: floatCard 5s ease-in-out infinite;
+            white-space: normal; z-index: 5; max-width: 220px;
+        }
+        .float-card .fc-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
+        }
+        .float-card-1 { top: 10%; left: -2%; animation-delay: 0s; }
+        .float-card-2 { top: 22%; right: -3%; animation-delay: -2s; }
+        .float-card-3 { bottom: 12%; left: 8%; animation-delay: -3.5s; }
+
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* ======================================================================
+           LOGOS / TRUST BAR
+           ====================================================================== */
+        .trust-section {
+            position: relative; z-index: 10;
+            padding: 60px 40px; border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .trust-inner {
+            max-width: 1280px; margin: 0 auto; text-align: center;
+        }
+        .trust-label {
+            font-size: 13px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 32px;
+        }
+        .trust-logos {
+            display: flex; justify-content: center; align-items: center;
+            gap: 50px; flex-wrap: wrap; opacity: 0.4;
+        }
+        .trust-logo {
+            font-family: var(--font-display); font-weight: 700; font-size: 20px;
+            color: var(--text-secondary); letter-spacing: 0.03em;
+        }
+
+        /* ======================================================================
+           BENTO FEATURES
+           ====================================================================== */
+        .features-section {
+            position: relative; z-index: 10;
+            padding: 120px 40px;
+        }
+        .features-inner { max-width: 1280px; margin: 0 auto; }
+
+        .section-header {
+            text-align: center; margin-bottom: 72px;
+        }
+        .section-eyebrow {
+            font-size: 13px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.12em; color: var(--accent-green); margin-bottom: 16px;
+        }
+        .section-title {
+            font-family: var(--font-display); font-weight: 800;
+            font-size: clamp(32px, 4vw, 52px); line-height: 1.1;
+            letter-spacing: -0.02em; margin-bottom: 16px;
+        }
+        .section-desc {
+            font-size: 17px; color: var(--text-secondary); max-width: 600px;
+            margin: 0 auto; line-height: 1.7;
+        }
+
+        /* Bento Grid */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto auto;
+            gap: 20px;
+        }
+        .bento-card {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg); padding: 36px;
+            position: relative; overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bento-card:hover {
+            background: var(--bg-card-hover); border-color: var(--border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .bento-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+
+        .bento-card.span-2 { grid-column: span 2; }
+        .bento-card.span-row { grid-row: span 2; }
+
+        .bento-icon {
+            width: 52px; height: 52px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px; font-size: 24px;
+        }
+        .bento-icon.green { background: var(--accent-green-dim); }
+        .bento-icon.cyan { background: var(--accent-cyan-dim); }
+        .bento-icon.purple { background: rgba(139, 92, 246, 0.12); }
+        .bento-icon.orange { background: rgba(245, 158, 11, 0.12); }
+
+        .bento-title {
+            font-family: var(--font-display); font-weight: 700;
+            font-size: 22px; margin-bottom: 10px; letter-spacing: -0.01em;
+        }
+        .bento-desc {
+            font-size: 15px; color: var(--text-secondary); line-height: 1.65;
+        }
+
+        .bento-visual {
+            margin-top: 24px; border-radius: var(--radius-sm); overflow: hidden;
+            border: 1px solid var(--border-subtle); position: relative;
+        }
+        .bento-visual img, .bento-visual video {
+            width: 100%; height: 180px; object-fit: cover; display: block;
+            opacity: 0.7; transition: opacity 0.4s;
+        }
+        .bento-card:hover .bento-visual img,
+        .bento-card:hover .bento-visual video { opacity: 1; }
+
+        /* Mini dashboard inside bento card */
+        .mini-dash {
+            margin-top: 20px; display: flex; gap: 12px;
+        }
+        .mini-dash-item {
+            flex: 1; padding: 14px; border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle);
+            text-align: center;
+        }
+        .mini-dash-item .value {
+            font-family: var(--font-display); font-weight: 700; font-size: 20px;
+            color: var(--accent-green);
+        }
+        .mini-dash-item .label {
+            font-size: 11px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ======================================================================
+           HOW IT WORKS
+           ====================================================================== */
+        .how-section {
+            position: relative; z-index: 10; padding: 120px 40px;
+        }
+        .how-inner { max-width: 1280px; margin: 0 auto; }
+
+        .steps-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+            margin-top: 64px;
+        }
+        .step-card {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg); padding: 36px 28px;
+            text-align: center; position: relative;
+            transition: all 0.4s;
+        }
+        .step-card:hover {
+            background: var(--bg-card-hover); border-color: var(--border-hover);
+            transform: translateY(-6px);
+        }
+        .step-number {
+            font-family: var(--font-display); font-weight: 900; font-size: 48px;
+            background: linear-gradient(180deg, var(--accent-green), transparent);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px; line-height: 1;
+        }
+        .step-title {
+            font-family: var(--font-display); font-weight: 700; font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .step-desc {
+            font-size: 14px; color: var(--text-secondary); line-height: 1.6;
+        }
+
+        /* Connector line between steps */
+        .step-card::after {
+            content: ''; position: absolute; top: 55px; right: -14px;
+            width: 28px; height: 2px;
+            background: linear-gradient(90deg, var(--accent-green), transparent);
+        }
+        .step-card:last-child::after { display: none; }
+
+        /* ======================================================================
+           SHOWCASE / DEMO SECTION
+           ====================================================================== */
+        .showcase-section {
+            position: relative; z-index: 10; padding: 120px 40px;
+            overflow: hidden;
+        }
+        .showcase-inner {
+            max-width: 1280px; margin: 0 auto;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+            align-items: center;
+        }
+        .showcase-content { display: flex; flex-direction: column; gap: 20px; }
+        .showcase-list {
+            list-style: none; display: flex; flex-direction: column; gap: 16px;
+            margin-top: 8px;
+        }
+        .showcase-list li {
+            display: flex; align-items: flex-start; gap: 14px;
+            font-size: 15px; color: var(--text-secondary); line-height: 1.6;
+        }
+        .showcase-list li .check {
+            flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+            background: var(--accent-green-dim); color: var(--accent-green);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; margin-top: 2px;
+        }
+
+        .showcase-visual {
+            position: relative; border-radius: var(--radius-xl); overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+        }
+        .showcase-visual video {
+            width: 100%; display: block;
+        }
+        .showcase-visual-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, transparent 60%, rgba(9,9,11,0.8) 100%);
+        }
+
+        /* ======================================================================
+           STATS SECTION
+           ====================================================================== */
+        .stats-section {
+            position: relative; z-index: 10; padding: 100px 40px;
+        }
+        .stats-inner {
+            max-width: 1100px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+        }
+        .stat-card {
+            text-align: center; padding: 40px 20px;
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            transition: all 0.4s;
+        }
+        .stat-card:hover {
+            border-color: var(--accent-green); transform: translateY(-4px);
+            box-shadow: 0 0 30px rgba(0, 232, 123, 0.1);
+        }
+        .stat-value {
+            font-family: var(--font-display); font-weight: 800; font-size: 40px;
+            color: var(--accent-green); margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 14px; color: var(--text-secondary); font-weight: 500;
+        }
+
+        /* ======================================================================
+           TESTIMONIALS
+           ====================================================================== */
+        .testimonials-section {
+            position: relative; z-index: 10; padding: 120px 40px;
+        }
+        .testimonials-inner { max-width: 1280px; margin: 0 auto; }
+
+        .testimonials-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+            margin-top: 64px;
+        }
+        .testimonial-card {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg); padding: 32px;
+            transition: all 0.4s; display: flex; flex-direction: column; gap: 20px;
+        }
+        .testimonial-card:hover {
+            border-color: var(--border-hover); transform: translateY(-4px);
+        }
+        .testimonial-stars { color: var(--accent-orange); font-size: 14px; letter-spacing: 2px; }
+        .testimonial-text {
+            font-size: 15px; color: var(--text-secondary); line-height: 1.7; flex: 1;
+            font-style: italic;
+        }
+        .testimonial-author {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .testimonial-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 16px; color: #000;
+        }
+        .testimonial-name { font-weight: 600; font-size: 14px; }
+        .testimonial-role { font-size: 12px; color: var(--text-muted); }
+
+        /* ======================================================================
+           CTA SECTION
+           ====================================================================== */
+        .cta-section {
+            position: relative; z-index: 10; padding: 120px 40px;
+        }
+        .cta-card {
+            max-width: 900px; margin: 0 auto; text-align: center;
+            padding: 80px 60px; border-radius: var(--radius-xl);
+            background: linear-gradient(145deg, rgba(0, 232, 123, 0.05), rgba(0, 212, 255, 0.03));
+            border: 1px solid rgba(0, 232, 123, 0.15);
+            position: relative; overflow: hidden;
+        }
+        .cta-card::before {
+            content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+            width: 200px; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-green), transparent);
+        }
+        .cta-title {
+            font-family: var(--font-display); font-weight: 800;
+            font-size: clamp(28px, 4vw, 48px); margin-bottom: 16px;
+            line-height: 1.15; letter-spacing: -0.02em;
+        }
+        .cta-desc {
+            font-size: 17px; color: var(--text-secondary); max-width: 500px;
+            margin: 0 auto 36px; line-height: 1.7;
+        }
+        .cta-actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+
+        /* ======================================================================
+           FOOTER
+           ====================================================================== */
+        .footer {
+            position: relative; z-index: 10;
+            border-top: 1px solid var(--border-subtle);
+            padding: 80px 40px 40px;
+        }
+        .footer-inner {
+            max-width: 1280px; margin: 0 auto;
+            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px;
+        }
+        .footer-brand { display: flex; flex-direction: column; gap: 16px; }
+        .footer-brand-desc { font-size: 14px; color: var(--text-muted); max-width: 300px; line-height: 1.6; }
+        .footer-col-title {
+            font-weight: 700; font-size: 14px; margin-bottom: 20px; color: var(--text-primary);
+        }
+        .footer-links {
+            list-style: none; display: flex; flex-direction: column; gap: 14px;
+        }
+        .footer-links li a {
+            font-size: 14px; color: var(--text-muted); transition: color 0.3s;
+        }
+        .footer-links li a:hover { color: var(--accent-green); }
+
+        .footer-bottom {
+            max-width: 1280px; margin: 48px auto 0;
+            padding-top: 24px; border-top: 1px solid var(--border-subtle);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .footer-copy { font-size: 13px; color: var(--text-muted); }
+        .footer-socials { display: flex; gap: 20px; }
+        .footer-socials a {
+            font-size: 13px; color: var(--text-muted); transition: color 0.3s;
+        }
+        .footer-socials a:hover { color: var(--accent-green); }
+
+        /* ======================================================================
+           MOBILE HAMBURGER
+           ====================================================================== */
+        .nav-hamburger {
+            display: none; background: none; border: none; cursor: pointer;
+            flex-direction: column; gap: 5px; padding: 8px;
+        }
+        .nav-hamburger span {
+            display: block; width: 24px; height: 2px; background: var(--text-primary);
+            transition: all 0.3s;
+        }
+
+        /* ======================================================================
+           RESPONSIVE
+           ====================================================================== */
+        @media (max-width: 1280px) {
+            .hero-visual { min-height: 520px; }
+            .float-card { font-size: 12px; padding: 12px 14px; max-width: 205px; }
+            .float-card-1 { left: 0; }
+            .float-card-2 { right: 0; }
+            .float-card-3 { left: 4%; }
+        }
+
+        @media (max-width: 1024px) {
+            .hero-inner { grid-template-columns: 1fr; text-align: center; }
+            .hero-content { align-items: center; }
+            .hero-desc { margin: 0 auto; }
+            .hero-cta { justify-content: center; }
+            .hero-stats-row { justify-content: center; }
+            .hero-visual { margin-top: 40px; }
+            .float-card { display: none; }
+            .bento-grid { grid-template-columns: 1fr 1fr; }
+            .bento-card.span-2 { grid-column: span 2; }
+            .steps-grid { grid-template-columns: 1fr 1fr; }
+            .step-card::after { display: none; }
+            .showcase-inner { grid-template-columns: 1fr; }
+            .stats-inner { grid-template-columns: 1fr 1fr; }
+            .testimonials-grid { grid-template-columns: 1fr 1fr; }
+            .footer-inner { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .hero { padding: 100px 20px 60px; }
+            .nav-links { display: none; }
+            .nav-hamburger { display: flex; }
+            .features-section, .how-section, .showcase-section,
+            .testimonials-section, .cta-section { padding: 80px 20px; }
+            .bento-grid { grid-template-columns: 1fr; }
+            .bento-card.span-2 { grid-column: span 1; }
+            .steps-grid { grid-template-columns: 1fr; }
+            .stats-inner { grid-template-columns: 1fr 1fr; }
+            .testimonials-grid { grid-template-columns: 1fr; }
+            .footer-inner { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+            .navbar { padding: 0 20px; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-cta { flex-direction: column; width: 100%; }
+            .btn-primary-lg, .btn-secondary-lg { width: 100%; justify-content: center; }
+            .hero-stats-row { flex-direction: column; gap: 16px; align-items: center; }
+            .stats-inner { grid-template-columns: 1fr; }
+        }
+
+        /* ======================================================================
+           ANIMATIONS
+           ====================================================================== */
+        .reveal { opacity: 0; transform: translateY(40px); }
+        .reveal-left { opacity: 0; transform: translateX(-40px); }
+        .reveal-right { opacity: 0; transform: translateX(40px); }
+        .reveal-scale { opacity: 0; transform: scale(0.95); }
+
+        /* ======================================================================
+           VIDEO SECTIONS & DIVIDERS
+           ====================================================================== */
+        .video-divider {
+            position: relative; width: 100%; height: 300px; overflow: hidden;
+            z-index: 5;
+        }
+        .video-divider video {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            min-width: 100%; min-height: 100%; object-fit: cover;
+            opacity: 0.25; pointer-events: none;
+        }
+        .video-divider .vd-overlay {
+            position: absolute; inset: 0; z-index: 1;
+            background: linear-gradient(180deg, var(--bg-primary) 0%, transparent 30%, transparent 70%, var(--bg-primary) 100%);
+        }
+        .video-divider .vd-content {
+            position: relative; z-index: 2; display: flex; align-items: center;
+            justify-content: center; height: 100%; text-align: center;
+            flex-direction: column; gap: 12px;
+        }
+
+        .section-video-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; opacity: 0.08; pointer-events: none; z-index: 0;
+        }
+
+        /* Parallax wrapper */
+        .parallax-section { position: relative; overflow: hidden; }
+        .parallax-bg { will-change: transform; }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient BG -->
+    <div class="ambient-bg">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+        <div class="ambient-orb orb-3"></div>
+    </div>
+    <div class="dot-grid"></div>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="nav-logo">
+                <div class="nav-logo-icon">AI</div>
+                <div class="nav-logo-text">Intern<span>AI</span></div>
+            </a>
+
+            <div class="nav-links" id="navLinks">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#stats">Results</a>
+                <a href="/about-us">About</a>
+                <a href="/contact-us">Contact</a>
+            </div>
+
+            <div class="nav-actions">
+                <a href="/login" class="btn-ghost">Sign In</a>
+                <a href="/register" class="btn-primary">Get Started Free</a>
+                <button id="logoutBtn" onclick="logout()" class="btn-ghost" style="display:none; color:#ff4444; border-color:rgba(255,68,68,0.3)">Log Out</button>
+            </div>
+
+            <button class="nav-hamburger" id="hamburger" onclick="document.getElementById('navLinks').classList.toggle('show-mobile')">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========== HERO ========== -->
+    <section class="hero parallax-section" id="hero">
+        <!-- Hero video background -->
+        <video class="section-video-bg" autoplay loop muted playsinline>
+            <source src="/images/7581229-hd_1920_1080_30fps.mp4" type="video/mp4">
+        </video>
+        <div class="hero-inner">
+            <div class="hero-content">
+                <div class="hero-badge reveal">
+                    <span class="dot"></span>
+                    AI-Powered Career Engine
+                </div>
+
+                <h1 class="hero-title reveal">
+                    <span class="line">Find Your Dream</span>
+                    <span class="line">Internship With</span>
+                    <span class="line highlight">AI Precision.</span>
+                </h1>
+
+                <p class="hero-desc reveal">
+                    InternAI scans 8+ platforms in real-time, parses your resume with NLP, runs AI mock interviews, and generates tailored cover letters — your complete AI career agent.
+                </p>
+
+                <div class="hero-cta reveal">
+                    <a href="/register" class="btn-primary-lg">
+                        Start For Free
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                    <a href="#features" class="btn-secondary-lg">
+                        Explore Features
+                    </a>
+                </div>
+
+                <div class="hero-stats-row reveal">
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">8<span class="green">+</span></div>
+                        <div class="hero-stat-label">Job Platforms</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">50K<span class="green">+</span></div>
+                        <div class="hero-stat-label">Jobs Scanned</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">98<span class="green">%</span></div>
+                        <div class="hero-stat-label">Match Accuracy</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual reveal-right">
+                <div class="hero-visual-orb">
+                    <img
+                        src="/images/hero-ai-orb.png"
+                        alt="InternAI Neural Engine"
+                        onerror="this.onerror=null;this.src='/images/pexels-kindelmedia-8566526.jpg';">
+
+                    <!-- Floating info cards -->
+                    <div class="float-card float-card-1">
+                        <div class="fc-icon" style="background: var(--accent-green-dim); color: var(--accent-green);">🎯</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 14px;">98% Match</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Google • SWE Intern</div>
+                        </div>
+                    </div>
+                    <div class="float-card float-card-2">
+                        <div class="fc-icon" style="background: var(--accent-cyan-dim); color: var(--accent-cyan);">📄</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 14px;">Resume Parsed</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">12 skills extracted</div>
+                        </div>
+                    </div>
+                    <div class="float-card float-card-3">
+                        <div class="fc-icon" style="background: rgba(139,92,246,0.15); color: var(--accent-purple);">🎤</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 14px;">Interview: 9.2/10</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">AI Feedback Ready</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== TRUST BAR ========== -->
+    <section class="trust-section reveal">
+        <div class="trust-inner">
+            <div class="trust-label">Scraping Internships From Top Platforms</div>
+            <div class="trust-logos">
+                <div class="trust-logo">LinkedIn</div>
+                <div class="trust-logo">Indeed</div>
+                <div class="trust-logo">Internshala</div>
+                <div class="trust-logo">Unstop</div>
+                <div class="trust-logo">Remotive</div>
+                <div class="trust-logo">Glassdoor</div>
+                <div class="trust-logo">FreshersHub</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== BENTO FEATURES ========== -->
+    <section class="features-section" id="features">
+        <div class="features-inner">
+            <div class="section-header">
+                <div class="section-eyebrow reveal">Powerful Features</div>
+                <h2 class="section-title reveal">Everything You Need to<br>Land Your Next Role</h2>
+                <p class="section-desc reveal">An AI-powered career toolkit that works 24/7 across 8+ job platforms, so you never miss the right opportunity.</p>
+            </div>
+
+            <div class="bento-grid">
+                <!-- Card 1: AI Internship Search — Large -->
+                <div class="bento-card span-2 reveal">
+                    <div class="bento-icon green">🔍</div>
+                    <div class="bento-title">AI Internship Search Agent</div>
+                    <div class="bento-desc">Our intelligent agent scans LinkedIn, Indeed, Remotive, Unstop, FreshersHub, Internshala and more — surfacing the freshest jobs posted in the last 7 days, ranked by your skill match.</div>
+                    <div class="mini-dash">
+                        <div class="mini-dash-item">
+                            <div class="value">8+</div>
+                            <div class="label">Platforms</div>
+                        </div>
+                        <div class="mini-dash-item">
+                            <div class="value">7 Days</div>
+                            <div class="label">Fresh Jobs</div>
+                        </div>
+                        <div class="mini-dash-item">
+                            <div class="value">Real-time</div>
+                            <div class="label">Scraping</div>
+                        </div>
+                        <div class="mini-dash-item">
+                            <div class="value">AI</div>
+                            <div class="label">Ranked</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Resume Parser -->
+                <div class="bento-card reveal">
+                    <div class="bento-icon cyan">📄</div>
+                    <div class="bento-title">Smart Resume Parsing</div>
+                    <div class="bento-desc">Drop any PDF and our NLP pipeline instantly extracts skills, experience, projects, and education — no manual entry needed.</div>
+                    <div class="bento-visual">
+                        <img src="/images/pexels-kindelmedia-8566526.jpg" alt="Resume parsing">
+                    </div>
+                </div>
+
+                <!-- Card 3: Mock Interview -->
+                <div class="bento-card reveal">
+                    <div class="bento-icon purple">🎤</div>
+                    <div class="bento-title">AI Mock Interviews</div>
+                    <div class="bento-desc">Practice with our AI interviewer using webcam proctoring. Get role-specific questions based on your resume and receive instant performance feedback.</div>
+                    <div class="bento-visual">
+                        <video src="/images/8347237-uhd_3840_2160_25fps.mp4" autoplay loop muted playsinline></video>
+                    </div>
+                </div>
+
+                <!-- Card 4: Cover Letter -->
+                <div class="bento-card reveal">
+                    <div class="bento-icon orange">✉️</div>
+                    <div class="bento-title">Cover Letter Generator</div>
+                    <div class="bento-desc">Generate professional, perfectly formatted cover letters tailored to any job in seconds. Download as PDF or DOCX.</div>
+                    <div class="bento-visual">
+                        <img src="/images/pexels-tima-miroshnichenko-5439152.jpg" alt="Cover letter generation">
+                    </div>
+                </div>
+
+                <!-- Card 5: Skill Gap Analysis -->
+                <div class="bento-card reveal">
+                    <div class="bento-icon green">📈</div>
+                    <div class="bento-title">Skill Gap Analysis</div>
+                    <div class="bento-desc">Discover exactly which skills are in highest demand. Our engine cross-references your profile against live job requirements to show you what to learn next.</div>
+                    <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden;"><div style="width: 92%; height: 100%; border-radius: 4px; background: var(--accent-green);"></div></div>
+                            <span style="font-size: 12px; color: var(--text-muted); min-width: 55px;">Docker</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden;"><div style="width: 78%; height: 100%; border-radius: 4px; background: var(--accent-cyan);"></div></div>
+                            <span style="font-size: 12px; color: var(--text-muted); min-width: 55px;">AWS</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden;"><div style="width: 65%; height: 100%; border-radius: 4px; background: var(--accent-purple);"></div></div>
+                            <span style="font-size: 12px; color: var(--text-muted); min-width: 55px;">K8s</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden;"><div style="width: 50%; height: 100%; border-radius: 4px; background: var(--accent-orange);"></div></div>
+                            <span style="font-size: 12px; color: var(--text-muted); min-width: 55px;">GraphQL</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 6: Dashboard — Large -->
+                <div class="bento-card span-2 reveal">
+                    <div class="bento-icon green">📊</div>
+                    <div class="bento-title">Intelligent Career Dashboard</div>
+                    <div class="bento-desc">A comprehensive analytics hub showing your skill match scores, gap analysis, market trends, company culture insights, and personalized internship recommendations — all in one view.</div>
+                    <div class="bento-visual">
+                        <img src="/images/pexels-fauxels-3184357.jpg" alt="Career dashboard" style="height: 200px;">
+                    </div>
+                </div>
+
+                <!-- Card 7: Live AI Avatar -->
+                <div class="bento-card reveal">
+                    <div class="bento-icon cyan">🧑‍💻</div>
+                    <div class="bento-title">Live Speaking Avatar</div>
+                    <div class="bento-desc">Interact with a real-time AI avatar powered by Akool streaming. Get spoken career advice, interview tips, and real-time feedback in a visually engaging experience.</div>
+                    <div class="bento-visual">
+                        <video src="/images/7581303-hd_1920_1080_30fps.mp4" autoplay loop muted playsinline></video>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== VIDEO DIVIDER 1 ========== -->
+    <div class="video-divider">
+        <video autoplay loop muted playsinline>
+            <source src="/images/7651776-uhd_3840_2160_30fps.mp4" type="video/mp4">
+        </video>
+        <div class="vd-overlay"></div>
+        <div class="vd-content">
+            <div style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-green);">Powered By AI</div>
+            <h3 style="font-family: var(--font-display); font-weight: 800; font-size: clamp(24px, 3vw, 36px); letter-spacing: -0.02em;">Built for the Next Generation of Talent</h3>
+            <p style="font-size: 15px; color: var(--text-secondary); max-width: 500px;">Our AI agent works around the clock — scanning, matching, and preparing you for success.</p>
+        </div>
+    </div>
+
+    <!-- ========== HOW IT WORKS ========== -->
+    <section class="how-section parallax-section" id="how-it-works">
+        <video class="section-video-bg" autoplay loop muted playsinline>
+            <source src="/images/8084507-uhd_3840_2160_25fps.mp4" type="video/mp4">
+        </video>
+        <div class="how-inner">
+            <div class="section-header">
+                <div class="section-eyebrow reveal">Simple Process</div>
+                <h2 class="section-title reveal">From Sign-Up to Offer in<br>4 Simple Steps</h2>
+                <p class="section-desc reveal">Upload once, leverage everywhere. Our AI handles the heavy lifting while you focus on preparing.</p>
+            </div>
+
+            <div class="steps-grid">
+                <div class="step-card reveal">
+                    <div class="step-number">01</div>
+                    <div class="step-title">Upload Resume</div>
+                    <div class="step-desc">Upload your PDF resume once during sign-up. Our NLP engine extracts your skills, projects, and experience instantly.</div>
+                </div>
+                <div class="step-card reveal">
+                    <div class="step-number">02</div>
+                    <div class="step-title">AI Scans Jobs</div>
+                    <div class="step-desc">Our agent crawls 8+ platforms in real-time, finding fresh internships posted in the last 7 days that match your profile.</div>
+                </div>
+                <div class="step-card reveal">
+                    <div class="step-number">03</div>
+                    <div class="step-title">Practice & Prepare</div>
+                    <div class="step-desc">Run AI mock interviews with webcam proctoring, generate custom cover letters, and analyze your skill gaps.</div>
+                </div>
+                <div class="step-card reveal">
+                    <div class="step-number">04</div>
+                    <div class="step-title">Land the Offer</div>
+                    <div class="step-desc">Apply with confidence. Track your progress, view market trends, and build your career with data-driven insights.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SHOWCASE — AI CHATBOT ========== -->
+    <section class="showcase-section" id="showcase">
+        <div class="showcase-inner">
+            <div class="showcase-content reveal-left">
+                <div class="section-eyebrow">AI Chatbot Agent</div>
+                <h2 class="section-title" style="text-align: left;">Chat With Your<br>Career Co-Pilot</h2>
+                <p class="section-desc" style="text-align: left; margin: 0;">Ask our AI agent anything — search for internships, get career advice, or explore opportunities across multiple platforms.</p>
+
+                <ul class="showcase-list">
+                    <li>
+                        <span class="check">✓</span>
+                        <span>Natural language job search — just describe what you want</span>
+                    </li>
+                    <li>
+                        <span class="check">✓</span>
+                        <span>Platform-specific search (LinkedIn, Indeed, Unstop, etc.)</span>
+                    </li>
+                    <li>
+                        <span class="check">✓</span>
+                        <span>Smart skill detection from conversation context</span>
+                    </li>
+                    <li>
+                        <span class="check">✓</span>
+                        <span>Live job cards with apply links and match scores</span>
+                    </li>
+                    <li>
+                        <span class="check">✓</span>
+                        <span>Powered by Google Gemini with local LLM fallback</span>
+                    </li>
+                </ul>
+
+                <div style="margin-top: 12px;">
+                    <a href="/register" class="btn-primary-lg">Try the AI Agent</a>
+                </div>
+            </div>
+
+            <div class="showcase-visual reveal-right">
+                <video src="/images/8566676-uhd_3840_2160_30fps.mp4" autoplay loop muted playsinline></video>
+                <div class="showcase-visual-overlay"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== STATS ========== -->
+    <section class="stats-section" id="stats">
+        <div class="stats-inner">
+            <div class="stat-card reveal">
+                <div class="stat-value" data-target="50000">0</div>
+                <div class="stat-label">Internships Scanned</div>
+            </div>
+            <div class="stat-card reveal">
+                <div class="stat-value" data-target="8">0</div>
+                <div class="stat-label">Job Platforms</div>
+            </div>
+            <div class="stat-card reveal">
+                <div class="stat-value" data-target="98">0%</div>
+                <div class="stat-label">Match Accuracy</div>
+            </div>
+            <div class="stat-card reveal">
+                <div class="stat-value" data-target="24">0/7</div>
+                <div class="stat-label">Always Active</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== VIDEO DIVIDER 2 ========== -->
+    <div class="video-divider" style="height: 250px;">
+        <video autoplay loop muted playsinline>
+            <source src="/images/6325848-hd_1920_1080_25fps.mp4" type="video/mp4">
+        </video>
+        <div class="vd-overlay"></div>
+        <div class="vd-content">
+            <div style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-cyan);">Real Results</div>
+            <h3 style="font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 3vw, 32px);">Trusted by Students Across India</h3>
+        </div>
+    </div>
+
+    <!-- ========== TESTIMONIALS ========== -->
+    <section class="testimonials-section" id="testimonials">
+        <div class="testimonials-inner">
+            <div class="section-header">
+                <div class="section-eyebrow reveal">What Students Say</div>
+                <h2 class="section-title reveal">Loved By Students<br>Across The Globe</h2>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card reveal">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <div class="testimonial-text">"InternAI found me 3 amazing remote internships in one scan. The AI mock interview feature helped me nail my final round at a top startup. Game changer!"</div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">R</div>
+                        <div>
+                            <div class="testimonial-name">Rahul Sharma</div>
+                            <div class="testimonial-role">CS Student, IIT Delhi</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card reveal">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <div class="testimonial-text">"I uploaded my resume once and it extracted all my skills perfectly. The cover letter generator saved me hours — each letter was perfectly tailored to the company."</div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">P</div>
+                        <div>
+                            <div class="testimonial-name">Priya Patel</div>
+                            <div class="testimonial-role">Data Science, NIT Trichy</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card reveal">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <div class="testimonial-text">"The skill gap analysis showed me exactly what I was missing. Within 2 weeks of using InternAI, I landed a paid ML internship. The dashboard is incredibly insightful."</div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">A</div>
+                        <div>
+                            <div class="testimonial-name">Amit Kumar</div>
+                            <div class="testimonial-role">AI/ML, BITS Pilani</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== CTA ========== -->
+    <section class="cta-section">
+        <div class="cta-card reveal-scale" style="position: relative; overflow: hidden;">
+            <!-- Video BG inside card -->
+            <video autoplay loop muted playsinline style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0.15; pointer-events: none;">
+                <source src="/images/8566676-uhd_3840_2160_30fps.mp4" type="video/mp4">
+            </video>
+            <div style="position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at center, rgba(0,232,123,0.08) 0%, rgba(9,9,11,0.9) 75%);"></div>
+
+            <h2 class="cta-title" style="position: relative; z-index: 2;">Ready to Find Your<br>Dream Internship?</h2>
+            <p class="cta-desc" style="position: relative; z-index: 2;">Join thousands of students using AI to discover hidden opportunities, practice interviews, and build their careers faster.</p>
+            <div class="cta-actions" style="position: relative; z-index: 2;">
+                <a href="/register" class="btn-primary-lg">
+                    Create Free Account
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="/about-us" class="btn-secondary-lg">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="/" class="nav-logo">
+                    <div class="nav-logo-icon">AI</div>
+                    <div class="nav-logo-text">Intern<span>AI</span></div>
+                </a>
+                <p class="footer-brand-desc">The AI-powered career platform that scans 8+ job boards, parses your resume, runs mock interviews, and generates cover letters — all in one place.</p>
+            </div>
+
+            <div>
+                <div class="footer-col-title">Product</div>
+                <ul class="footer-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="/register">Get Started</a></li>
+                    <li><a href="/login">Sign In</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <div class="footer-col-title">Resources</div>
+                <ul class="footer-links">
+                    <li><a href="/about-us">About Us</a></li>
+                    <li><a href="/contact-us">Contact</a></li>
+                    <li><a href="/documentation">Documentation</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <div class="footer-col-title">Legal</div>
+                <ul class="footer-links">
+                    <li><a href="/privacy-policy">Privacy Policy</a></li>
+                    <li><a href="/terms-and-conditions">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="footer-copy">© 2026 InternAI. All rights reserved.</p>
+            <div class="footer-socials">
+                <a href="#">Twitter</a>
+                <a href="#">LinkedIn</a>
+                <a href="#">GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== SCRIPTS ========== -->
+    <script>
+        // ===== 1. LENIS SMOOTH SCROLL =====
+        const lenis = new Lenis({
+            duration: 1.4,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
+            smoothWheel: true,
+            wheelMultiplier: 1,
+            touchMultiplier: 1.5,
+        });
+
+        // Connect Lenis to GSAP ScrollTrigger
+        lenis.on('scroll', ScrollTrigger.update);
+        
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Smooth scroll for anchor links via Lenis
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) {
+                    lenis.scrollTo(target, { offset: -80 });
+                    document.getElementById('navLinks')?.classList.remove('show-mobile');
+                }
+            });
+        });
+
+        // ===== 2. GSAP INIT =====
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        ScrollTrigger.create({
+            start: 50,
+            onUpdate: (self) => {
+                navbar.classList.toggle('scrolled', self.scroll() > 50);
+            }
+        });
+
+        // ===== 3. HERO ENTRANCE =====
+        const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        heroTl
+            .fromTo('.hero .hero-badge', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7 })
+            .fromTo('.hero .hero-title', { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.9 }, '-=0.4')
+            .fromTo('.hero .hero-desc', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7 }, '-=0.5')
+            .fromTo('.hero .hero-cta', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6 }, '-=0.4')
+            .fromTo('.hero .hero-stats-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6 }, '-=0.3')
+            .fromTo('.hero .hero-visual', { opacity: 0, x: 80, scale: 0.95 }, { opacity: 1, x: 0, scale: 1, duration: 1.2 }, '-=0.8');
+
+        // ===== 4. PARALLAX EFFECTS =====
+        // Hero orb parallax (moves slower than scroll)
+        gsap.to('.hero-visual-orb', {
+            y: -80,
+            ease: 'none',
+            scrollTrigger: {
+                trigger: '.hero',
+                start: 'top top',
+                end: 'bottom top',
+                scrub: 1.5,
+            }
+        });
+
+        // Hero content parallax (moves faster = depth)
+        gsap.to('.hero-content', {
+            y: -40,
+            ease: 'none',
+            scrollTrigger: {
+                trigger: '.hero',
+                start: 'top top',
+                end: 'bottom top',
+                scrub: 1,
+            }
+        });
+
+        // Floating cards parallax
+        gsap.utils.toArray('.float-card').forEach((card, i) => {
+            gsap.to(card, {
+                y: -(30 + i * 20),
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: '.hero',
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: 1 + i * 0.3,
+                }
+            });
+        });
+
+        // Ambient orbs parallax
+        gsap.utils.toArray('.ambient-orb').forEach((orb, i) => {
+            gsap.to(orb, {
+                y: () => -200 - i * 80,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: 'body',
+                    start: 'top top',
+                    end: 'bottom bottom',
+                    scrub: 2 + i,
+                }
+            });
+        });
+
+        // Section background videos parallax (slow movement)
+        gsap.utils.toArray('.section-video-bg').forEach(vid => {
+            gsap.to(vid, {
+                y: -60,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: vid.parentElement,
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 2,
+                }
+            });
+        });
+
+        // Section headers parallax (slight upward movement)
+        gsap.utils.toArray('.section-header').forEach(header => {
+            gsap.to(header, {
+                y: -20,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: header,
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 1.5,
+                }
+            });
+        });
+
+        // Bento cards slight parallax on scroll
+        gsap.utils.toArray('.bento-card').forEach((card, i) => {
+            gsap.to(card, {
+                y: -(10 + (i % 3) * 8),
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 1.5,
+                }
+            });
+        });
+
+        // Step cards staggered parallax
+        gsap.utils.toArray('.step-card').forEach((card, i) => {
+            gsap.to(card, {
+                y: -(15 + i * 5),
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: '.steps-grid',
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 1.5,
+                }
+            });
+        });
+
+        // Stat cards parallax
+        gsap.utils.toArray('.stat-card').forEach((card, i) => {
+            gsap.to(card, {
+                y: -(10 + i * 6),
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: '.stats-section',
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 2,
+                }
+            });
+        });
+
+        // Video divider parallax (video moves slower = depth)
+        gsap.utils.toArray('.video-divider video').forEach(vid => {
+            gsap.to(vid, {
+                y: -40,
+                scale: 1.05,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: vid.parentElement,
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 2,
+                }
+            });
+        });
+
+        // ===== 5. SCROLL-TRIGGERED REVEALS =====
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
+            if (el.closest('.hero')) return; // skip hero (handled by timeline)
+
+            const isLeft = el.classList.contains('reveal-left');
+            const isRight = el.classList.contains('reveal-right');
+            const isScale = el.classList.contains('reveal-scale');
+
+            gsap.fromTo(el,
+                {
+                    opacity: 0,
+                    x: isLeft ? -50 : isRight ? 50 : 0,
+                    y: (!isLeft && !isRight && !isScale) ? 50 : 0,
+                    scale: isScale ? 0.92 : 1,
+                },
+                {
+                    opacity: 1, x: 0, y: 0, scale: 1,
+                    duration: 0.9,
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: el,
+                        start: 'top 88%',
+                        toggleActions: 'play none none none',
+                    }
+                }
+            );
+        });
+
+        // Staggered bento cards entrance
+        gsap.utils.toArray('.bento-card').forEach((card, i) => {
+            gsap.fromTo(card,
+                { opacity: 0, y: 60, scale: 0.97 },
+                {
+                    opacity: 1, y: 0, scale: 1,
+                    duration: 0.8,
+                    delay: i * 0.08,
+                    ease: 'back.out(1.4)',
+                    scrollTrigger: {
+                        trigger: '.bento-grid',
+                        start: 'top 82%',
+                    }
+                }
+            );
+        });
+
+        // Staggered step cards entrance
+        gsap.utils.toArray('.step-card').forEach((card, i) => {
+            gsap.fromTo(card,
+                { opacity: 0, y: 60 },
+                {
+                    opacity: 1, y: 0,
+                    duration: 0.7,
+                    delay: i * 0.12,
+                    ease: 'back.out(1.3)',
+                    scrollTrigger: {
+                        trigger: '.steps-grid',
+                        start: 'top 82%',
+                    }
+                }
+            );
+        });
+
+        // Testimonial cards entrance
+        gsap.utils.toArray('.testimonial-card').forEach((card, i) => {
+            gsap.fromTo(card,
+                { opacity: 0, y: 40, rotateX: 5 },
+                {
+                    opacity: 1, y: 0, rotateX: 0,
+                    duration: 0.7,
+                    delay: i * 0.15,
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: '.testimonials-grid',
+                        start: 'top 85%',
+                    }
+                }
+            );
+        });
+
+        // ===== 6. COUNTER ANIMATION =====
+        function animateCounter(el) {
+            const target = parseInt(el.getAttribute('data-target'));
+            if (!target) return;
+            const duration = 2000;
+            const start = performance.now();
+
+            function update(now) {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.round(eased * target);
+
+                if (target >= 1000) {
+                    el.textContent = Math.round(current / 1000) + 'K+';
+                } else if (el.textContent.includes('%')) {
+                    el.textContent = current + '%';
+                } else if (el.textContent.includes('/')) {
+                    el.textContent = current + '/7';
+                } else {
+                    el.textContent = current + '+';
+                }
+
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        document.querySelectorAll('.stat-value').forEach(el => {
+            ScrollTrigger.create({
+                trigger: el,
+                start: 'top 90%',
+                once: true,
+                onEnter: () => animateCounter(el),
+            });
+        });
+
+        // ===== 7. MOBILE NAV =====
+        const mobileStyle = document.createElement('style');
+        mobileStyle.textContent = `
+            @media (max-width: 768px) {
+                .nav-links.show-mobile {
+                    display: flex !important;
+                    flex-direction: column;
+                    position: absolute;
+                    top: 100%;
+                    left: 0; right: 0;
+                    background: rgba(9, 9, 11, 0.95);
+                    backdrop-filter: blur(20px);
+                    padding: 20px;
+                    gap: 16px;
+                    border-bottom: 1px solid var(--border-subtle);
+                }
+            }
+        `;
+        document.head.appendChild(mobileStyle);
+
+        // ===== 8. AUTHENTICATION REDIRECT =====
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('session_id');
+            window.location.href = '/';
+        }
+        
+        const token = localStorage.getItem('token') || localStorage.getItem('session_id');
+        if (token) {
+            const authLinks = document.querySelectorAll('a[href="/login"], a[href="/register"]');
+            authLinks.forEach(link => {
+                link.href = '/dashboard';
+                const t = link.textContent.trim();
+                if (t.includes('Sign In')) link.textContent = 'Dashboard';
+                else if (t.includes('Get Started') || t.includes('Start For Free')) {
+                    link.innerHTML = 'Go to Dashboard <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                }
+            });
+            const loBtn = document.getElementById('logoutBtn');
+            if (loBtn) loBtn.style.display = 'inline-block';
+        }
+    </script>
+</body>
+</html>

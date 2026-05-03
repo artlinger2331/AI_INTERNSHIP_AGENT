@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+uploads/
+.env
+secrets
+*.txt
+!requirements.txt
+*.png
+!internship_ai_agent/images/hero-ai-orb.png
+temp.js
+test_signup.json
+MockInterviewApp/
+venv/
+internai.db
+scratch/
+demo resume/
+Images_Videos/
